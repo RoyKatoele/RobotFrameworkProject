@@ -75,7 +75,8 @@ FillingAForm
     Select From List By Value   name=your-subject    Other                                                                        #10 Selecteer een dropdown value
     Choose File                 xpath=//*[@id="wpcf7-f92-p160-o1"]/form/p[5]/label/span/input    ${EXECDIR}/screenshot 8.png      #11 Upload een file
     Input Text                  name=your-message    Roy is trying to enter \n can he do that? \n I think so \n lets try          #12 textbox vullen met enters
-    
+    Close Browser
+    Log                         Test OK    
     
     
 
@@ -86,6 +87,7 @@ CreateTXTfile
     ${ran string}=    Generate Random String    length=6    chars=[LOWER]
     Create File        ${EXECDIR}/file_with_variable.txt          ${ran int} ${\n}                                                #13 maak een txt file aan en vul de eerst regel met een random nummer
     Append To File     ${EXECDIR}/file_with_variable.txt          ${ran string}                                                   #14 voeg aan een txt file een 2de regel toe met een random string  
+    Log                Test OK 
 
     
 *** Variables ***
