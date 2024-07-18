@@ -23,61 +23,60 @@ MySecondTeSt
     
 MyThirdTeSt    
     Log        Hello World...
-    
-GoogleSearch
-    Open Browser                http://www.google.nl        chrome                                                                #1. Open een browser
-    Set Browser Implicit Wait   5
-    Input Text                  name=q                      "roy katoele"
-    Sleep                       2 
-    Press Keys                  name=q                      ENTER
-    # Click Button              name=btnK
+
+Test_Swaglabs -> login and order a product
+    # Open the Sauce Demo website in the specified browser and set up the environment
+    Open Browser                    ${URL}       ${BROWSERHEADLESS}
+    Set Browser Implicit Wait       5
+    Set Window Size                 800          600
+
+    # Log in with the provided username and password
+    LoginSauceDemo    ${CREDENTIALS}[0]    ${CREDENTIALS}[1]
+
+    # Navigate to the product details page for "Sauce Labs Backpack" and add it to the cart
+    Click Link                      Sauce Labs Backpack
+    Click Element                   id=add-to-cart
+    Element Should Be Visible       id=remove  # Verify that the "Remove" button appears after adding to the cart
+
+    # Proceed to checkout by viewing the cart and clicking the checkout button
+    Click Element                   id=shopping_cart_container
+    Click Button                    id=checkout
+
+    # Attempt to continue without entering personal details to trigger validation error
+    Click Element                   id=continue
+    Element Text Should Be          xpath=//h3[@data-test="error"]    Error: First Name is required
+
+    # Fill in the personal details and continue to the overview/summary page
+    Input Text                      id=first-name     Roy
+    Input Text                      id=last-name      Katoele
+    Input Text                      id=postal-code    12345
+    Click Element                   id=continue
+
+    # Verify the details on the summary page
+    Element Text Should Be          xpath=//div[@data-test="payment-info-label"]    Payment Information:
+    Element Text Should Be          xpath=//div[@data-test="payment-info-value"]    SauceCard #31337
+    Element Text Should Be          xpath=//div[@data-test="shipping-info-label"]   Shipping Information:
+    Element Text Should Be          xpath=//div[@data-test="shipping-info-value"]   Free Pony Express Delivery!
+    Element Text Should Be          xpath=//div[@data-test="total-info-label"]      Price Total
+    Element Text Should Be          xpath=//div[@data-test="subtotal-label"]        Item total: $29.99
+    Element Text Should Be          xpath=//div[@data-test="tax-label"]             Tax: $2.40
+    Element Text Should Be          xpath=//div[@data-test="total-label"]           Total: $32.39
+
+    # Close the browser and log the success of the test
     Close Browser
-    Log                         Test OK
-    
-SiteRoyKatoele
-    Open Browser                ${URL}        chrome
-    Set Browser Implicit Wait   5
-    Set Window Size             800                             600                                                               #2. Pas de browser groote aan (breedte en hoogte)
-    Click Element               link=Heb je alles getest?
-    Close Browser
-    Log                         Test OK      
-    
-SiteRoyKatoeleInlog
-    [Documentation]             Dit is een login test
-    Open Browser                https://opensource-demo.orangehrmlive.com/      chrome
-    Set Browser Implicit Wait   10
-    LoginKW                     # hier gebruik ik mijn aangemaakte USER keyword
-    Click Element               id=welcome
-    Click Element               link=Logout                                                                                       #7. Klik een element op basis van de link tekst 
-    Close Browser
-    Log                         Test OK
-    Log                         This test was executed by %{username} on %{os}    #Dit zijn ENVIROMENT variabelen, hiermee kun jij bijvoorbeeld op welk OS de test is uit gevoerd door welke user 
-    
-SiteGoToUsers
-    [Documentation]             Dit is een hover grafiek test
-    Open Browser                https://opensource-demo.orangehrmlive.com/      headlesschrome    #Headless draaien van testen
-    Set Browser Implicit Wait   10
-    LoginKW                     # hier gebruik ik mijn aangemaakte USER keyword
-    Mouse Over                  id=menu_admin_viewAdminModule                                                                     #6. Hover over een tekst door gebruik te maken van de id
-    Mouse Over                  id=menu_admin_UserManagement
-    Click Element               id=menu_admin_viewSystemUsers    
-    Element Should Contain      xpath=//*[@id="systemUser-information"]/div[1]/h1    System U                                     #8. Controleert text op een pagina (Partial match) 
-    Element Text Should Be      xpath=//*[@id="systemUser-information"]/div[1]/h1    System Users                                 #9. Controleert text op een pagina (exact match)             
-    Close Browser
-    Log                         Test OK
-    
-FillingAForm
-    Open Browser                https://www.fishinglures4you.com/contact-2/    chrome
-    Set Browser Implicit Wait   10
-    Input Text                  name=your-name    Roy Katoele
-    Input Text                  name=your-email   roykatoele@gmail.com
-    Input Text                  name=Ordernumber  123456
-    Select From List By Value   name=your-subject    Other                                                                        #10 Selecteer een dropdown value
-    Choose File                 xpath=//*[@id="wpcf7-f92-p160-o1"]/form/p[5]/label/span/input    ${EXECDIR}/screenshot 8.png      #11 Upload een file
-    Input Text                  name=your-message    Roy is trying to enter \n can he do that? \n I think so \n lets try          #12 textbox vullen met enters
-    Close Browser
-    Log                         Test OK    
-    
+    Log                             Test OK
+
+
+Test_the-internet_herokuapp
+    Open Browser                    https://letcode.in/forms      ${BROWSER}
+    Set Browser Implicit Wait       5
+    Set Window Size                 800                             600     
+    Input Text                      id=firstname    Roy   
+    Input Text                      id=lasttname    Katoele
+    Clear Element Text              id=email
+    Input Text                      id=email    Test@roykatoele.nl
+    Click Element                   xpath=/html/body/app-root/app-forms/section[1]/div/div/div[1]/div/div/form/div[8]/div/input
+    Close Browser   
     
 
 CreateTXTfile
@@ -91,15 +90,20 @@ CreateTXTfile
 
     
 *** Variables ***
-${URL}            http://www.roykatoele.nl                         #Dit is een SCALAR variable  
-@{CREDENTIALS}    Admin    admin123                                #Dit is een LIST variable
-&{LOGINDATA}      username=Admin    password=admin123              #Dit is een DICTIONARY variable
+${URL}     https://www.saucedemo.com
+@{CREDENTIALS}    standard_user    secret_sauce                               #Dit is een LIST variable
+#&{LOGINDATA}      username=standard_user    password=secret_sauce              #Dit is een DICTIONARY variable
+${BROWSER}    Chrome
+${BROWSERHEADLESS}    headlesschrome
 # Er bestaand ook nog BUILD-IN variabelen deze zijn hier te vinden: https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables
 
 *** Keywords ***
-LoginKW
-    Input Text                  id=txtUsername                   @{CREDENTIALS}[0]                                                 #3. Voer tekst in door gebruik te maken van een ID
-    Input Text                  xpath=//*[@id="txtPassword"]      &{LOGINDATA}[password]                                           #4. Voer tekst in door gebruik te maken van een Xpath
-    Click Button                id=btnLogin                                                                                        #5. Klik op een knop door gebruik te maken van een ID
-    # Hierboven staat een voorbeeld van User made keyword (namelijk: LoginKW)
+LoginSauceDemo
+    [Arguments]    ${username}    ${password}
+    Input Text                  id=user-name          ${username}
+    Input Text                  id=password           ${password}                                         #4. Voer tekst in door gebruik te maken van een Xpath
+    Click Button                id=login-button                                                                                        #5. Klik op een knop door gebruik te maken van een ID
+    # Hierboven staat een voorbeeld van User made keyword (namelijk: LoginSauceDemo)
+
     
+
